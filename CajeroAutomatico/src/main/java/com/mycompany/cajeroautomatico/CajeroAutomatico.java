@@ -9,14 +9,12 @@ package com.mycompany.cajeroautomatico;
  */
 
 public class CajeroAutomatico {
+
     private String _codigo = null;
     /**
      * La cuenta corriente sobre la que se opera en una sesión.
      */
     private String _cuenta;
-
-    public static void main(String args[]){
-    }
 
     public CajeroAutomatico(String codigo) {
         _codigo = codigo;
