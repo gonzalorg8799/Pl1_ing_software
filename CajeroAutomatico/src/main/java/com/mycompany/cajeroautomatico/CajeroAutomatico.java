@@ -8,7 +8,8 @@ package com.mycompany.cajeroautomatico;
  * @author grodriguez
  */
 public class CajeroAutomatico {
-
+    public static void main(String args[]){
+    }
     private String _codigo = null;
     /**
      * La cuenta corriente sobre la que se opera en una sesión.
