@@ -11,7 +11,7 @@ public interface GestorHipoteca {
     public boolean comprobarCantidad(double cantidad);
 
     /**
-     * Comprueba si el plazo solicitado en años esta dentro del limite permitido.
+     * Comprueba si el plazo solicitado en meses esta dentro del limite permitido.
      */
     public boolean comprobarPlazo(int plazo);
 
