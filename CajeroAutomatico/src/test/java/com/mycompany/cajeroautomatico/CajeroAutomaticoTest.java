@@ -1,57 +1,81 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
- */
 package com.mycompany.cajeroautomatico;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reset;
-import static org.easymock.EasyMock.verify;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.junit.jupiter.api.Assertions.*;
+import org.easymock.EasyMockExtension;
+import org.easymock.Mock;
+import org.easymock.EasyMock;
 
-/**
- *
- * @author grodriguez
- */
+@ExtendWith(EasyMockExtension.class)
 public class CajeroAutomaticoTest {
 
-    private CajeroAutomatico CajeroBajoPrueba;
-    private PasarelaPago mock;
+    private CajeroAutomatico cajero;
+
+    @Mock
+    private PasarelaPago mockPasarela;
+
+    @BeforeEach
+    public void setUp() {
+        cajero = new CajeroAutomatico("1234");
+        mockPasarela = EasyMock.createMock(PasarelaPago.class);
+    }
 
     @Test
-    public void testRealizarRetirada1() {
-        System.out.println("Caso 1: pasarela no bloqueada y cuenta con saldo");
+    public void testEvaluarCliente_CasosLimiteValidos() {
+        assertEquals(3, cajero.evaluarCliente(10000, 24, 2));
+        assertEquals(2, cajero.evaluarCliente(5000, 12, 1));
+        assertEquals(1, cajero.evaluarCliente(1000, 6, 0));
+        assertEquals(0, cajero.evaluarCliente(500, 3, 1));
+    }
 
-        /* (1) Se crea el objeto de la clase a probar y un mock para simular la
- clase PasarelaPago
-         */
-        CajeroBajoPrueba = new CajeroAutomatico("1111111111");
-        CajeroBajoPrueba.iniciarSesion("1234");
-        mock = createMock(PasarelaPago.class);
-        /* (2) En estado de "grabación", se le dice al objeto Simulado las
- llamadas que debe esperar y cómo responder a ellas.
-         */
-        expect(mock.estaBloqueada()).andReturn(false);
-        expect(mock.tieneSaldo(500)).andReturn(true);
-        mock.retirar(500);
-        /* (3) Ahora, el objeto simulado comienza a esperar las llamadas
-         */
-        replay(mock);
-        /* (4) Se programa la prueba del objeto de la clase a probar
-         */
-        boolean result = CajeroBajoPrueba.realizarRetirada(500, mock);
-        assertTrue(result);
-        /* (5) Forzamos a que la ausencia de todas las llamadas previstas sea
- también un error
-         */
-        verify(mock);
-        /* (6) Se ejecutan instrucciones necesarias de finalización de la prueba
- y se resetea el mock
-         */
-        CajeroBajoPrueba.cerrarSesion();
-        reset(mock);
+    @Test
+    public void testEvaluarCliente_CasosNoValidos() {
+        assertEquals(-1, cajero.evaluarCliente(-1, 10, 1));
+        assertEquals(-1, cajero.evaluarCliente(1000, -1, 1));
+        assertEquals(-1, cajero.evaluarCliente(1000, 10, -1));
+    }
+
+    @Test
+    public void testEvaluarCliente_FronterasSuperiores() {
+        assertEquals(2, cajero.evaluarCliente(9999.99, 23, 1));
+        assertEquals(1, cajero.evaluarCliente(4999.99, 11, 0));
+        assertEquals(0, cajero.evaluarCliente(999.99, 5, 0));
+    }
+
+    @Test
+    public void testEvaluarCliente_FronterasInferiores() {
+        assertEquals(2, cajero.evaluarCliente(10000, 12, 1));
+        assertEquals(1, cajero.evaluarCliente(5000, 6, 0));
+        assertEquals(0, cajero.evaluarCliente(999, 5, 0));
+    }
+
+    @Test
+    public void testRealizarRetirada_SaldoSuficiente() {
+        cajero.iniciarSesion("ES1234567890");
+        
+        EasyMock.expect(mockPasarela.estaBloqueada()).andReturn(false);
+        EasyMock.expect(mockPasarela.tieneSaldo(100.0)).andReturn(true);
+        mockPasarela.retirar(100.0);
+        EasyMock.replay(mockPasarela);
+        
+        boolean resultado = cajero.realizarRetirada(100.0, mockPasarela);
+        
+        assertTrue(resultado);
+        EasyMock.verify(mockPasarela);
+    }
+
+    @Test
+    public void testRealizarRetirada_CuentaBloqueada() {
+        cajero.iniciarSesion("ES1234567890");
+        
+        EasyMock.expect(mockPasarela.estaBloqueada()).andReturn(true);
+        EasyMock.replay(mockPasarela);
+        
+        boolean resultado = cajero.realizarRetirada(100.0, mockPasarela);
+        
+        assertFalse(resultado);
+        EasyMock.verify(mockPasarela);
     }
 }
