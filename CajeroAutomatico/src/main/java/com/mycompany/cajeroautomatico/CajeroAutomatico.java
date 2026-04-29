@@ -7,12 +7,12 @@ package com.mycompany.cajeroautomatico;
  *
  * @author grodriguez
  */
-
 public class CajeroAutomatico {
 
     private String _codigo = null;
+
     /**
-     * La cuenta corriente sobre la que se opera en una sesión.
+     * La cuenta corriente sobre la que se opera en una sesion.
      */
     private String _cuenta;
 

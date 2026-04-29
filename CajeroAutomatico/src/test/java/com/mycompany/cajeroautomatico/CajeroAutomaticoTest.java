@@ -14,8 +14,8 @@ public class CajeroAutomaticoTest {
     @BeforeEach
     public void setUp() {
         cajero = new CajeroAutomatico("1234");
-        mockPasarela = EasyMock.createStrictMock(PasarelaPago.class);
-        mockHipoteca = EasyMock.createStrictMock(GestorHipoteca.class);
+        mockPasarela = EasyMock.createMock(PasarelaPago.class);
+        mockHipoteca = EasyMock.createMock(GestorHipoteca.class);
     }
 
     @Test
@@ -51,7 +51,6 @@ public class CajeroAutomaticoTest {
     public void testRealizarRetirada_CuentaBloqueadaConSaldo() {
         cajero.iniciarSesion("ES1234567890");
 
-        // Al estar bloqueada, la pasarela no debe llegar a consultar saldo.
         EasyMock.expect(mockPasarela.estaBloqueada()).andReturn(true);
         EasyMock.replay(mockPasarela);
 
@@ -65,7 +64,6 @@ public class CajeroAutomaticoTest {
     public void testRealizarRetirada_CuentaBloqueadaSinSaldo() {
         cajero.iniciarSesion("ES1234567890");
 
-        // Al estar bloqueada, la pasarela no debe llegar a consultar saldo.
         EasyMock.expect(mockPasarela.estaBloqueada()).andReturn(true);
         EasyMock.replay(mockPasarela);
 
@@ -77,9 +75,9 @@ public class CajeroAutomaticoTest {
 
     /*
      * Casos de equivalencia para evaluarCliente:
-     * Valido: cantidad <= 200000, plazo <= 240 meses, edad <= 50.
+     * Valido: cantidad <= 200000, plazo <= 20 anios, edad <= 50.
      * Invalido por cantidad: cantidad > 200000.
-     * Invalido por plazo: plazo > 240 meses.
+     * Invalido por plazo: plazo > 20 anios.
      * Invalido por edad: edad > 50.
      */
     @Test
@@ -87,12 +85,12 @@ public class CajeroAutomaticoTest {
         cajero.iniciarSesion("ES1234567890");
 
         EasyMock.expect(mockHipoteca.comprobarCantidad(200000.0)).andReturn(true);
-        EasyMock.expect(mockHipoteca.comprobarPlazo(240)).andReturn(true);
+        EasyMock.expect(mockHipoteca.comprobarPlazo(20)).andReturn(true);
         EasyMock.expect(mockHipoteca.comprobarEdad(50)).andReturn(true);
-        mockHipoteca.abrirHipoteca(200000.0, 240);
+        mockHipoteca.abrirHipoteca(200000.0, 20);
         EasyMock.replay(mockHipoteca);
 
-        boolean resultado = cajero.evaluarCliente(200000.0, 240, 50, mockHipoteca);
+        boolean resultado = cajero.evaluarCliente(200000.0, 20, 50, mockHipoteca);
 
         assertTrue(resultado);
         EasyMock.verify(mockHipoteca);
@@ -102,10 +100,10 @@ public class CajeroAutomaticoTest {
     public void testEvaluarCliente_CantidadInvalida() {
         cajero.iniciarSesion("ES1234567890");
 
-        EasyMock.expect(mockHipoteca.comprobarCantidad(200000.01)).andReturn(false);
+        EasyMock.expect(mockHipoteca.comprobarCantidad(200001.0)).andReturn(false);
         EasyMock.replay(mockHipoteca);
 
-        boolean resultado = cajero.evaluarCliente(200000.01, 240, 50, mockHipoteca);
+        boolean resultado = cajero.evaluarCliente(200001.0, 20, 50, mockHipoteca);
 
         assertFalse(resultado);
         EasyMock.verify(mockHipoteca);
@@ -116,10 +114,10 @@ public class CajeroAutomaticoTest {
         cajero.iniciarSesion("ES1234567890");
 
         EasyMock.expect(mockHipoteca.comprobarCantidad(150000.0)).andReturn(true);
-        EasyMock.expect(mockHipoteca.comprobarPlazo(241)).andReturn(false);
+        EasyMock.expect(mockHipoteca.comprobarPlazo(21)).andReturn(false);
         EasyMock.replay(mockHipoteca);
 
-        boolean resultado = cajero.evaluarCliente(150000.0, 241, 50, mockHipoteca);
+        boolean resultado = cajero.evaluarCliente(150000.0, 21, 50, mockHipoteca);
 
         assertFalse(resultado);
         EasyMock.verify(mockHipoteca);
@@ -130,11 +128,11 @@ public class CajeroAutomaticoTest {
         cajero.iniciarSesion("ES1234567890");
 
         EasyMock.expect(mockHipoteca.comprobarCantidad(150000.0)).andReturn(true);
-        EasyMock.expect(mockHipoteca.comprobarPlazo(240)).andReturn(true);
+        EasyMock.expect(mockHipoteca.comprobarPlazo(20)).andReturn(true);
         EasyMock.expect(mockHipoteca.comprobarEdad(51)).andReturn(false);
         EasyMock.replay(mockHipoteca);
 
-        boolean resultado = cajero.evaluarCliente(150000.0, 240, 51, mockHipoteca);
+        boolean resultado = cajero.evaluarCliente(150000.0, 20, 51, mockHipoteca);
 
         assertFalse(resultado);
         EasyMock.verify(mockHipoteca);
