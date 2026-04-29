@@ -8,7 +8,7 @@ package com.mycompany.binarysearch;
  * @author skali
  */
 public class BinarySearch {
-
+    //pueblic static void main(Strings [] args){}
     public static int binarySearch(int[] A, int x) {
 // search space is `A[left…right]`
         int left = 0, right = A.length - 1;
