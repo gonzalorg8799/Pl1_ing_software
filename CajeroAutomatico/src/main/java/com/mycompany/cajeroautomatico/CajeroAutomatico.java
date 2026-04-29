@@ -42,19 +42,18 @@ public class CajeroAutomatico {
         return false;
     }
 
-    public int evaluarCliente(double saldo, int antiguedadMeses, int numCuentas) {
-        if (saldo < 0 || antiguedadMeses < 0 || numCuentas < 0) {
-            return -1;
+    public boolean evaluarCliente(double cantidad, int plazo, int edad, GestorHipoteca gestor) {
+        assert (_cuenta != null);
+        if (!gestor.comprobarCantidad(cantidad)) {
+            return false;
         }
-
-        if (saldo >= 10000 && antiguedadMeses >= 24 && numCuentas >= 2) {
-            return 3;
-        } else if (saldo >= 5000 && antiguedadMeses >= 12 && numCuentas >= 1) {
-            return 2;
-        } else if (saldo >= 1000 || antiguedadMeses >= 6) {
-            return 1;
-        } else {
-            return 0;
+        if (!gestor.comprobarPlazo(plazo)) {
+            return false;
         }
+        if (!gestor.comprobarEdad(edad)) {
+            return false;
+        }
+        gestor.abrirHipoteca(cantidad, plazo);
+        return true;
     }
 }
