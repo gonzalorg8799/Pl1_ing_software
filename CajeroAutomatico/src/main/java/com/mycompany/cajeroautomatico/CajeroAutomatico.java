@@ -32,13 +32,29 @@ public class CajeroAutomatico {
 
     public boolean realizarRetirada(double cantidad, PasarelaPago p) {
         assert (_cuenta != null);
-        if (p.estaBloqueada()) { //Si está bloqueada nada
+        if (p.estaBloqueada()) {
             return false;
         }
-        if (p.tieneSaldo(cantidad)) { //Si está activa y tiene saldo
-            p.retirar(cantidad); //llamo al método retirar dinero
+        if (p.tieneSaldo(cantidad)) {
+            p.retirar(cantidad);
             return true;
         }
         return false;
+    }
+
+    public int evaluarCliente(double saldo, int antiguedadMeses, int numCuentas) {
+        if (saldo < 0 || antiguedadMeses < 0 || numCuentas < 0) {
+            return -1;
+        }
+
+        if (saldo >= 10000 && antiguedadMeses >= 24 && numCuentas >= 2) {
+            return 3;
+        } else if (saldo >= 5000 && antiguedadMeses >= 12 && numCuentas >= 1) {
+            return 2;
+        } else if (saldo >= 1000 || antiguedadMeses >= 6) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }
